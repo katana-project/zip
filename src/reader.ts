@@ -198,14 +198,21 @@ const decompress = async (
     reader: Reader,
     decompressor: Decompressor
 ): Promise<Uint8Array> => {
+    let firstMethod = header.method, secondMethod = entry.compressionMethod;
+
     const compressed = await reader.read(header.start, header.length);
+    if (header.method === 0) {
+        // LFH says it's uncompressed, try the CDR's method first
+        firstMethod = entry.compressionMethod;
+        secondMethod = header.method;
+    }
+
     try {
-        return await decompressor(header.method, compressed);
+        return await decompressor(firstMethod, compressed);
     } catch (e) {
-        if (e instanceof UnsupportedCompressionMethodError && header.method !== entry.compressionMethod) {
-            // central directory might specify a different compression method than the local file header
+        if (e instanceof UnsupportedCompressionMethodError && firstMethod !== secondMethod) {
             // we don't know which one is correct frankly, so try both
-            return decompressor(entry.compressionMethod, compressed);
+            return decompressor(secondMethod, compressed);
         }
 
         throw e;
@@ -232,10 +239,6 @@ const createEntry = (e: RawEntry, reader: Reader, options: ReadOptions): Entry =
             if (header.length === 0) {
                 return new Blob([], { type });
             }
-            if (header.method === 0) {
-                // no compression (stored)
-                return reader.slice(header.start, header.length);
-            }
 
             const data = await decompress(e, header, reader, options.decompressor!);
 
@@ -248,10 +251,6 @@ const createEntry = (e: RawEntry, reader: Reader, options: ReadOptions): Entry =
             const header = await readEntryDataHeader(reader, options, e);
             if (header.length === 0) {
                 return new Uint8Array(0);
-            }
-            if (header.method === 0) {
-                // no compression (stored)
-                return reader.read(header.start, header.length);
             }
 
             return decompress(e, header, reader, options.decompressor!);

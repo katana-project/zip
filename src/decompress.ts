@@ -9,6 +9,11 @@ export class UnsupportedCompressionMethodError extends Error {
 }
 
 export const streamDecompressor: Decompressor = async (method, data) => {
+    if (method === 0) {
+        // Stored
+        return data;
+    }
+
     if (method !== 8) {
         // not Deflated
         throw new UnsupportedCompressionMethodError(method);
@@ -21,5 +26,6 @@ export const streamDecompressor: Decompressor = async (method, data) => {
         },
     });
 
+    // FIXME: failing tests pertaining to junk data
     return new Uint8Array(await new Response(stream.pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
 };

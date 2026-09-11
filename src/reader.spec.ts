@@ -15,9 +15,12 @@ describe("reader", () => {
                 try {
                     await entry.blob();
                     const bytes = await entry.bytes();
-                    if (bytes.length === 0 && !entry.isDirectory) {
+                    /*if (bytes.length === 0 && !entry.isDirectory) {
                         console.warn(`Entry ${entry.name} has zero bytes`);
-                    }
+                    }*/
+                    /*if (entry.name === "fabric.mod.json") {
+                        console.log(new TextDecoder().decode(bytes));
+                    }*/
                 } catch (e) {
                     console.log(entry);
                     throw e;
