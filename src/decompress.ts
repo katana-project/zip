@@ -1,6 +1,5 @@
 export type Decompressor = (method: number, data: Uint8Array) => Uint8Array | PromiseLike<Uint8Array>;
 
-// used by the reader, please throw this error when the compression method is not supported
 export class UnsupportedCompressionMethodError extends Error {
     constructor(method: number) {
         super(`Unsupported compression method (${method})`);

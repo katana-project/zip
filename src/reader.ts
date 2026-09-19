@@ -1,4 +1,4 @@
-import { Entry, Zip, ReadOptions, UnsupportedCompressionMethodError, Decompressor } from "./";
+import { Entry, Zip, ReadOptions, Decompressor } from "./";
 import { streamDecompressor } from "./decompress";
 
 export interface Reader {
@@ -211,7 +211,7 @@ const decompress = async (
     try {
         return await decompressor(firstMethod, compressed);
     } catch (e) {
-        if (e instanceof UnsupportedCompressionMethodError && firstMethod !== secondMethod) {
+        if (firstMethod !== secondMethod) {
             // we don't know which one is correct frankly, so try both
             return decompressor(secondMethod, compressed);
         }

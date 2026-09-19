@@ -2,7 +2,7 @@ import { readFileSync, opendirSync, type Dirent } from "node:fs";
 import { join } from "node:path";
 import { Decompressor, readBytes, UnsupportedCompressionMethodError } from "./";
 import { expect } from "chai";
-import { deflateRaw } from "pako";
+import { inflateRaw } from "pako";
 
 const pakoDecompressor: Decompressor = async (method, data) => {
     if (method === 0) {
@@ -13,7 +13,7 @@ const pakoDecompressor: Decompressor = async (method, data) => {
         throw new UnsupportedCompressionMethodError(method);
     }
 
-    return deflateRaw(data);
+    return inflateRaw(data);
 };
 
 describe("reader", () => {
