@@ -1,13 +1,29 @@
 import { readFileSync, opendirSync, type Dirent } from "node:fs";
 import { join } from "node:path";
-import { readBytes } from "./";
+import { Decompressor, readBytes, UnsupportedCompressionMethodError } from "./";
 import { expect } from "chai";
+import { deflateRaw } from "pako";
+
+const pakoDecompressor: Decompressor = async (method, data) => {
+    if (method === 0) {
+        return data;
+    }
+
+    if (method !== 8) {
+        throw new UnsupportedCompressionMethodError(method);
+    }
+
+    return deflateRaw(data);
+};
 
 describe("reader", () => {
     const register = (path: string) => {
         const data = new Uint8Array(readFileSync(path));
         it(`read ${path}`, async () => {
-            const zip = await readBytes(data /*, { decoder: new TextDecoder("shift-jis") }*/);
+            const zip = await readBytes(data, {
+                // decoder: new TextDecoder("shift-jis")
+                // decompressor: pakoDecompressor,
+            });
 
             // console.log(zip);
             expect(zip.entries.length).greaterThan(0);

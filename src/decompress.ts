@@ -26,6 +26,5 @@ export const streamDecompressor: Decompressor = async (method, data) => {
         },
     });
 
-    // FIXME: failing tests pertaining to junk data
     return new Uint8Array(await new Response(stream.pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
 };

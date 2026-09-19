@@ -198,7 +198,8 @@ const decompress = async (
     reader: Reader,
     decompressor: Decompressor
 ): Promise<Uint8Array> => {
-    let firstMethod = header.method, secondMethod = entry.compressionMethod;
+    let firstMethod = header.method,
+        secondMethod = entry.compressionMethod;
 
     const compressed = await reader.read(header.start, header.length);
     if (header.method === 0) {
